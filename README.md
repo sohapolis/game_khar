@@ -1,0 +1,5 @@
+# game_khar
+
+
+
+THIS GAME DEVELOPED BY SOHA YE SHAKH
