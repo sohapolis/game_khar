@@ -57,6 +57,9 @@ enum coller {
 	red,
 	black
 };
+
+
+
 int search(int row, int col)
 {
 	if (row < 0 || col < 0 || row>17 || col >17) {
@@ -73,13 +76,15 @@ int search(int row, int col)
 
 			//*current = path;
 			return 1;
+
 		}
 		*current = empty;
 	}
 	return 0;
 }
-int checkPath(Turn turn) {
-	
+void meghdar() {
+	memset(MAP, 0, 4 * 17 * 17);
+
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 8; j++) {
 			if (wallh[i][j].s == 1)
@@ -97,31 +102,53 @@ int checkPath(Turn turn) {
 			MAP[i][j] = 1;
 		}
 	}
-	if (turn == player1) {
-		for (int i = 0; i < 17; i+=2) {
-			MAP[0][i] = goal;
-		}
-
-		return search(Xblack, Yblack);
-	}
-	else {
-		for (int i = 0; i < 17; i += 2) {
-			MAP[16][i] = goal;
-		}
-		return search(Xred, Yred);
-	}
-	
+}
 
 
-	/*for (int i = 0; i < 17; ++i) {
+
+
+
+int checkPath(Turn turn){
+	int result = -2;
+
+	meghdar();
+	for (int i = 0; i < 17; ++i) {
 		for (int j = 0; j < 17; j++)
 		{
 			printf_s("%d\t", MAP[i][j]);
 		}
 		puts(" ");
-	}*/
-	return 0;
+	}
+	printf("\n");
+	for (int i = 0; i < 17; i += 2) {
+		MAP[0][i] = goal;
+	}
+	result += search(2*Xblack, 2*Yblack);
+
+	meghdar();
+	for (int i = 0; i < 17; ++i) {
+		for (int j = 0; j < 17; j++)
+		{
+			printf_s("%d\t", MAP[i][j]);
+		}
+		puts(" ");
+	}
+	printf("\n");
+
+	for (int i = 0; i < 17; i += 2) {
+		MAP[16][i] = goal;
+	}
+	result += search(2*Xred, 2*Yred);
+
+
+	
+	printf("%d\n", result);
+	return result;
 }
+
+
+
+
 void drowmap(){
 
 	BeginDrawing();
@@ -163,8 +190,12 @@ void drowmap(){
 	EndDrawing();
 
 }
+
+
+
+
 void clickMouse(Vector2 x , Turn & turn){
-	
+	//TODO function for wall
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			if (CheckCollisionPointRec(x, inter[i][j].m)) {
@@ -172,18 +203,23 @@ void clickMouse(Vector2 x , Turn & turn){
 			}
 		}
 	}
+
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			if (CheckCollisionPointRec(x, wallh[i][j].wall) && wallh[i + 1][j].s != 1 && inter[i][j].s != 1 && ((turn == player1 && NumberOfWallsP1 > 0) || (turn == player2 && NumberOfWallsP2 > 0))){
-				if (!checkPath(turn)) {
-					printf("impoosible");
-					return;
-				}
-				printf("found");
 				wallh[i][j].s = 1;
 				wallh[i + 1][j].s = 1;
 				inter[i][j].s = 1;
-				
+				if (checkPath(turn)) {
+					printf("impoosible\n");
+					wallh[i][j].s = 0;
+					wallh[i + 1][j].s = 0;
+					inter[i][j].s = 0;
+					return;
+				}
+				printf("found\n");
+			
+				//TODO function for turn
 				if (turn == player1) { 
 					NumberOfWallsP1--;
 					turn = player2;
@@ -197,18 +233,23 @@ void clickMouse(Vector2 x , Turn & turn){
 			}
 		}
 	}
+
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 8; j++) {
 			if (CheckCollisionPointRec(x, wallv[i][j].wall) && wallv[i][j].s != 1 && wallv[i][j + 1].s != 1 && inter[i][j].s != 1 && ((turn == player1 && NumberOfWallsP1 > 0) || (turn == player2 && NumberOfWallsP2 > 0))) {
-				if (!checkPath(turn)) {
-					printf("impoosible");
-					return;
-				}
-				printf("found");
 				wallv[i][j].s = 1;
 				wallv[i][j + 1].s = 1;
 				inter[i][j].s = 1;
-				checkPath(turn);
+				if (checkPath(turn)) {
+					printf("impoosible\n");
+					wallv[i][j].s = 0;
+					wallv[i][j + 1].s = 0;
+					inter[i][j].s = 0;
+					return;
+				}
+				printf("found\n");
+				
+				//checkPath(turn);
 				if (turn == player1) {
 					NumberOfWallsP1--;
 					turn = player2;
@@ -282,6 +323,12 @@ void clickMouse(Vector2 x , Turn & turn){
 	}
 
 }
+
+
+
+
+
+
 int main() {
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
@@ -313,6 +360,8 @@ int main() {
 	Xblack = 8;
 	Yred = 4;
 	Yblack = 4;
+
+
 	InitWindow(w, h, "game");
 
 	SetTargetFPS(60);
